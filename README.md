@@ -1,4 +1,5 @@
-# phpseqlog
+# PHP SeqLog client
+
 A Seq client for logging in PHP
 
 Usage
