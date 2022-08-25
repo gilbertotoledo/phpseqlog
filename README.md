@@ -1,2 +1,2 @@
 # phpseqlog
-A Seq client for PHP
+A Seq client for logging in PHP
