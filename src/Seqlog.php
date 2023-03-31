@@ -1,97 +1,99 @@
 <?php
+require_once("./LogLevel.php");
+
 class SeqLog{
-    private $seqUri;
-    private $apiKey;
-    private $minimumLogLevel;
+    private static $seqUri;
+    private static $apiKey;
+    private static $minimumLogLevel;
 
-    function __construct($seqUri, $apiKey, $minimumLogLevel: LogLevel = LogLevel::Warning){
-        $this->seqUri = $seqUri . "/api/events/raw?clef";
-        $this->apiKey = $apiKey;
-        $this->minimumLogLevel = $minimumLogLevel;
+    public static function Config(string $seqUri, string $apiKey, LogLevel $minimumLogLevel = LogLevel::Warning){
+        self::$seqUri = $seqUri."/api/events/raw?clef";
+        self::$apiKey = $apiKey;
+        self::$minimumLogLevel = $minimumLogLevel;
     }
 
-    public function IsEnabled($logLevel::LogLevel){
-        return $this->minimumLogLevel <= $logLevel;
+    public static function IsEnabled(LogLevel $logLevel){
+        return self::$minimumLogLevel <= $logLevel;
     }
 
-    public function CurrentLevel(){
-        return $this->minimumLogLevel;
+    public static function CurrentLevel(): LogLevel{
+        return self::$minimumLogLevel;
     }
 
-    public function Trace($message){
-        $this->Log(LogLevel::Trace, null, $message, null);
+    public static function Trace($message){
+        return self::Log(LogLevel::Trace, null, $message, null);
     }
 
-    public function Trace($message, $params){
-        $this->Log(LogLevel::Trace, null, $message, $params);
+    public static function Trace($message, $params){
+        return self::Log(LogLevel::Trace, null, $message, $params);
     }
 
-    public function Trace($exception, $message, $params){
-        $this->Log(LogLevel::Trace, $exception, $message, $params);
+    public static function Trace($exception, $message, $params){
+        return self::Log(LogLevel::Trace, $exception, $message, $params);
     }
 
-    public function Debug($message){
-        $this->Log(LogLevel::Debug, null, $message, null);
+    public static function Debug($message){
+        return self::Log(LogLevel::Debug, null, $message, null);
     }
 
-    public function Debug($message, $params){
-        $this->Log(LogLevel::Debug, null, $message, $params);
+    public static function Debug($message, $params){
+        return self::Log(LogLevel::Debug, null, $message, $params);
     }
 
-    public function Debug($exception, $message, $params){
-        $this->Log(LogLevel::Debug, $exception, $message, $params);
+    public static function Debug($exception, $message, $params){
+        return self::Log(LogLevel::Debug, $exception, $message, $params);
     }
 
-    public function Information($message){
-        $this->Log(LogLevel::Information, null, $message, null);
+    public static function Information($message){
+        return self::Log(LogLevel::Information, null, $message, null);
     }
 
-    public function Information($message, $params){
-        $this->Log(LogLevel::Information, null, $message, $params);
+    public static function Information($message, $params){
+        return self::Log(LogLevel::Information, null, $message, $params);
     }
 
-    public function Information($exception, $message, $params){
-        $this->Log(LogLevel::Information, $exception, $message, $params);
+    public static function Information($exception, $message, $params){
+        return self::Log(LogLevel::Information, $exception, $message, $params);
     }
 
-    public function Warning($message){
-        $this->Log(LogLevel::Warning, null, $message, null);
+    public static function Warning($message){
+        return self::Log(LogLevel::Warning, null, $message, null);
     }
 
-    public function Warning($message, $params){
-        $this->Log(LogLevel::Warning, null, $message, $params);
+    public static function Warning($message, $params){
+        return self::Log(LogLevel::Warning, null, $message, $params);
     }
 
-    public function Warning($exception, $message, $params){
-        $this->Log(LogLevel::Warning, $exception, $message, $params);
+    public static function Warning($exception, $message, $params){
+        return self::Log(LogLevel::Warning, $exception, $message, $params);
     }
 
-    public function Error($message){
-        $this->Log(LogLevel::Error, null, $message, null);
+    public static function Error($message){
+        return self::Log(LogLevel::Error, null, $message, null);
     }
 
-    public function Error($message, $params){
-        $this->Log(LogLevel::Error, null, $message, $params);
+    public static function Error($message, $params){
+        return self::Log(LogLevel::Error, null, $message, $params);
     }
 
-    public function Error($exception, $message, $params){
-        $this->Log(LogLevel::Error, $exception, $message, $params);
+    public static function Error($exception, $message, $params){
+        return self::Log(LogLevel::Error, $exception, $message, $params);
     }
 
-    public function Critical($message){
-        $this->Log(LogLevel::Critical, null, $message, null);
+    public static function Critical($message){
+        return self::Log(LogLevel::Critical, null, $message, null);
     }
 
-    public function Critical($message, $params){
-        $this->Log(LogLevel::Critical, null, $message, $params);
+    public static function Critical($message, $params){
+        return self::Log(LogLevel::Critical, null, $message, $params);
     }
 
-    public function Critical($exception, $message, $params){
-        $this->Log(LogLevel::Critical, $exception, $message, $params);
+    public static function Critical($exception, $message, $params){
+        return self::Log(LogLevel::Critical, $exception, $message, $params);
     }
 
-    public function Log($logLevel, $exception, $message, $params){
-        if(!$this->IsEnabled($logLevel)){
+    public static function Log(LogLevel $logLevel, $exception, $message, $params){
+        if(!self::IsEnabled($logLevel)){
             return;
         }
 
@@ -114,39 +116,20 @@ class SeqLog{
             $logData["@x"] = $exception;
         }
 
-        return $this->Post($logData);
+        return self::Post($logData);
     }
 
-    private function Post($logData){
+    private static function Post($logData){
         $options = [
             'http' => [
-                'header'  => "Content-type: application/vnd.serilog.clef\r\nX-Seq-ApiKey: $this->apiKey\r\n",
+                'header'  => "Content-type: application/vnd.serilog.clef\r\nX-Seq-ApiKey: ".self::$apiKey."\r\n",
                 'method'  => 'POST',
                 'content' => json_encode($logData)
             ]
         ];
         $context  = stream_context_create($options);
-        return file_get_contents($this->seqUri, false, $context) !== false;
-    }
-}
 
-enum LogLevel : int{
-	case Trace = 0;
-	case Debug = 1;
-	case Information = 2;
-	case Warning = 3;
-	case Error = 4;
-    case Critical = 5;
-	
-	public function toString(): string {
-        return match ($this) {
-            LogLevel::Trace => 'Trace',
-            LogLevel::Debug => 'Debug',
-            LogLevel::Information => 'Information',
-            LogLevel::Warning => 'Warning',
-            LogLevel::Error => 'Error',
-            LogLevel::Critical => 'Critical'
-        };
+        return file_get_contents(self::$seqUri, false, $context) !== false;
     }
 }
 ?>
