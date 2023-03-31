@@ -109,7 +109,7 @@ class SeqLog{
             $logData["@m"] = $message;
         }else{
             $logData["@mt"] = $message;
-            //TO DO Add params to $logData
+            $logData = array_merge($logData, $params);
         }
 
         if($exception != null){
